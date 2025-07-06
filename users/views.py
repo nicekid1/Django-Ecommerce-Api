@@ -12,6 +12,9 @@ class UserViewSet(viewsets.ModelViewSet):
     return User.objects.filter(id=self.request.user.id)
 
 class RegisterViewSet(viewsets.ModelViewSet):
-  queryset = User.objects.all()
+  queryset = User.objects.none()
   serializer_class = RegisterSerializer
   permission_classes = [permissions.AllowAny]
+
+  def list(self,request):
+    return Response({'detail': 'Not allowed'}, status=405)

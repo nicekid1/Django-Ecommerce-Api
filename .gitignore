@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environments
+venv/
+ENV/
+env/
+.venv/
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+*.pyo
+*.sqlite3
+*.db
+db.sqlite3
+media/
+staticfiles/
+static_root/
+local_settings.py
+.env
+.env.*
+
+# VS Code
+.vscode/
+
+# mypy / pytest / coverage / pyright
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.pyright/
+
+# Mac/Linux/Windows system files
+.DS_Store
+Thumbs.db
+
+# pip-tools output
+*.txt~

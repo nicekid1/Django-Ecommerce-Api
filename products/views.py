@@ -30,11 +30,11 @@ class ProductViewSet(viewsets.ModelViewSet):
         if not query:
             return Response({'detail': 'No search query provided.'}, status=400)
 
-        results = Product.objects.annotate(
-            similarity=TrigramSimilarity('name', query),
+        products = Product.objects.annotate(
+        similarity=TrigramSimilarity('name', Cast(Value(query), CharField()))
         ).filter(similarity__gt=0.2).order_by('-similarity')
 
-        serializer = self.get_serializer(results, many=True)
+        serializer = self.get_serializer(products, many=True)
         return Response(serializer.data)
 
 

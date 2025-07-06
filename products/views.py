@@ -2,6 +2,8 @@ from rest_framework import viewsets, permissions, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.postgres.search import TrigramSimilarity
 from rest_framework.decorators import action
+from django.db.models import Value, CharField
+from django.db.models.functions import Cast
 from rest_framework.response import Response
 
 from .models import Product, Category, ProductImage

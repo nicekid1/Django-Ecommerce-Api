@@ -10,5 +10,5 @@ router.register('profile',UserViewSet,basename='profile')
 urlpatterns = [
     path('token/',TokenObtainPairView.as_view(),name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('',include(router))
+    path('',include(router.urls))
 ]

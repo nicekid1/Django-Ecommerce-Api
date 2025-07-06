@@ -11,3 +11,7 @@ class UserViewSet(viewsets.ModelViewSet):
   def get_queryset(self):
     return User.objects.filter(id=self.request.user.id)
 
+class RegisterViewSet(viewsets.ModelViewSet):
+  queryset = User.objects.all()
+  serializer_class = RegisterSerializer
+  permission_classes = [permissions.AllowAny]

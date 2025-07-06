@@ -40,7 +40,8 @@ INSTALLED_APPS = [
 
     #our app
     'users',
-
+    'products',
+    
     #rest
     'rest_framework'
 ]

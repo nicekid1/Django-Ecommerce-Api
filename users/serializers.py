@@ -4,13 +4,18 @@ from django.contrib.auth.password_validation import validate_password
 
 User = get_user_model()
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_admin'] 
+
 class RegisterSerializer(serializers.ModelSerializer):
   password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
   password2 = serializers.CharField(write_only=True, required=True)
 
   class Meta:
     model = User
-    field = ('username', 'email', 'password', 'password2')
+    fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_admin']
   def validate(self,attrs):
     if attrs['password'] != attrs['password2']:
       raise serializers.ValidationError({"password": "Passwords didn't match."})

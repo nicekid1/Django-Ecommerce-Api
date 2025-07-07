@@ -61,7 +61,19 @@ class CartViewSet(viewsets.ModelViewSet):
         return CartItem.objects.filter(user=self.request.user).select_related('product')
     
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        user = self.request.user
+        product = serializer.validated_data['product']
+        quantity = serializer.validated_data.get('quantity', 1)
+
+        cart_item, created = CartItem.objects.get_or_create(
+            user=user,
+            product=product,
+            defaults={'quantity': quantity}
+        )
+
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
 
     @action(detail=False, methods=['get'])
     def total(self, request):

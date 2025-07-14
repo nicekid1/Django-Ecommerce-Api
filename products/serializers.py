@@ -45,7 +45,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
        fields = ['id', 'product', 'product_name', 'quantity', 'price']
 
 class OrderSerializer(serializers.ModelSerializer):
-    item =OrderItemSerializer(many=True,read_only=True)
+    items =OrderItemSerializer(many=True,read_only=True)
     total_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:

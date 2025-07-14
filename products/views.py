@@ -103,7 +103,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def perform_create(self, serializer):
         user = self.request.user
-        cart_items = CartItem.objects.filter(user-user).select_related('product')
+        cart_items = CartItem.objects.filter(user=user).select_related('product')
         if not cart_items:
             raise serializers.ValidationError("cart is empty")
         total = sum(item.product.price * item.quantity for item in cart_items)

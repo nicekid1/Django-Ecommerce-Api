@@ -29,8 +29,12 @@ class CartItemSerializer(serializers.ModelSerializer):
     fields = ['id', 'product', 'product_detail', 'quantity', 'total_price']
 
   
-  def get_total_price(self,obj):
-    product = obj['product']
-    quantity = obj['quantity']
-    price = product.price
-    return price * quantity
+  def get_total_price(self, obj):
+    if isinstance(obj, dict):
+      product = obj['product']
+      quantity = obj['quantity']
+      price = product.price
+      return price * quantity
+    return obj.product.price * obj.quantity
+
+    

@@ -7,8 +7,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Value, CharField
 from django.db.models.functions import Cast
 from django.contrib.postgres.search import TrigramSimilarity
+from django.shortcuts import get_object_or_404
 
 from .models import Product, Category , CartItem
+from users.models import User
 from .serializers import ProductSerializer, CategorySerializer, CartItemSerializer
 from .filters import ProductFilter
 
@@ -80,3 +82,12 @@ class CartViewSet(viewsets.ModelViewSet):
         cart_items = self.get_queryset()
         total = sum(item.total_price for item in cart_items)
         return Response({'total_price': total})
+    
+    @action(detail=False, methods=['get'], url_path='user/(?P<user_id>[^/.]+)')
+    def get_user_cart(self, request, user_id=None):
+        user = get_object_or_404(User,pk=user_id)
+        if request.user != user and not request.user.is_staff:
+            return Response({'detail': ' you have not access '}, status=status.HTTP_403_FORBIDDEN)
+        cart_items = CartItem.objects.filter(user=user).select_related('product')
+        serializer = self.get_serializer(cart_items,many=True)
+        return Response(serializer.data)

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product,Category,ProductImage,CartItem
+from .models import Product,Category,ProductImage,CartItem,OrderItem,Order
 
 class ProductImageSerializer(serializers.ModelSerializer):
   class Meta:
@@ -37,4 +37,18 @@ class CartItemSerializer(serializers.ModelSerializer):
       return price * quantity
     return obj.product.price * obj.quantity
 
-    
+class OrderItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name',read_only=True)
+
+    class Meta:
+       model =OrderItem
+       fields = ['id', 'product', 'product_name', 'quantity', 'price']
+
+class OrderSerializer(serializers.ModelSerializer):
+    item =OrderItemSerializer(many=True,read_only=True)
+    total_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ['id', 'status', 'created_at', 'updated_at', 'shipping_address', 'total_price', 'items']
+

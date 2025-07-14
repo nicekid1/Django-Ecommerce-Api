@@ -8,10 +8,11 @@ from django.db.models import Value, CharField
 from django.db.models.functions import Cast
 from django.contrib.postgres.search import TrigramSimilarity
 from django.shortcuts import get_object_or_404
+from django.db import transaction
 
-from .models import Product, Category , CartItem
+from .models import Product, Category , CartItem, OrderItem, Order
 from users.models import User
-from .serializers import ProductSerializer, CategorySerializer, CartItemSerializer
+from .serializers import ProductSerializer, CategorySerializer, CartItemSerializer, OrderSerializer
 from .filters import ProductFilter
 
 
@@ -91,3 +92,29 @@ class CartViewSet(viewsets.ModelViewSet):
         cart_items = CartItem.objects.filter(user=user).select_related('product')
         serializer = self.get_serializer(cart_items,many=True)
         return Response(serializer.data)
+
+class OrderViewSet(viewsets.ModelViewSet):
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user).prefetch_related('items_product')
+    
+    @transaction.atomic
+    def perform_create(self, serializer):
+        user = self.request.user
+        cart_items = CartItem.objects.filter(user-user).select_related('product')
+        if not cart_items:
+            raise serializers.ValidationError("cart is empty")
+        total = sum(item.product.price * item.quantity for item in cart_items)
+        order = serializer.save(user=user, total_price=total)
+
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                price=item.product.price
+            )
+        cart_items.delete()
+        

@@ -9,3 +9,9 @@ urlpatterns = [
     path('api/store/', include('products.urls')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+urlpatterns += [
+    path('payment/start/<int:order_id>/', start_payment, name='start_payment'),
+    path('payment/verify/<int:order_id>/', verify_payment, name='verify_payment'),
+]
+

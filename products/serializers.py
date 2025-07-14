@@ -30,8 +30,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
   
   def get_total_price(self,obj):
-    if isinstance(obj, dict):
-        product_price = obj.get('product').get('price') if isinstance(obj.get('product'), dict) else 0
-        quantity = obj.get('quantity', 0)
-        return product_price * quantity
-    return obj.total_price
+    product = obj['product']
+    quantity = obj['quantity']
+    price = product.price
+    return price * quantity

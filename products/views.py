@@ -119,3 +119,29 @@ ZARINPAL_REQUEST_URL = 'https://sandbox.zarinpal.com/pg/services/WebGate/wsdl'
 ZARINPAL_START_PAY = 'https://sandbox.zarinpal.com/pg/StartPay/'
 
 MERCHANT_ID = 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def start_payment(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+    except Order.DoesNotExist:
+        return Response({"error": "order not found"}, status=404)
+
+    client = Client(ZARINPAL_REQUEST_URL)
+
+    callback_url = f"http://127.0.0.1:8000/api/store/payment/verify/{order.id}/"
+
+    result = client.service.PaymentRequest(
+        MERCHANT_ID,
+        order.total_price,
+        "Payment for store order",
+        request.user.email,
+        "09123456789",
+        callback_url
+    )
+
+    if result.Status == 100:
+        return redirect(ZARINPAL_START_PAY + str(result.Authority))
+    else:
+        return Response({"error": f"Payment error: code{result.Status}"}, status=400)

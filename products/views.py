@@ -117,3 +117,5 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 ZARINPAL_REQUEST_URL = 'https://sandbox.zarinpal.com/pg/services/WebGate/wsdl'
 ZARINPAL_START_PAY = 'https://sandbox.zarinpal.com/pg/StartPay/'
+
+MERCHANT_ID = 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'

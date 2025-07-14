@@ -98,7 +98,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user).prefetch_related('items_product')
+        return Order.objects.filter(user=self.request.user).prefetch_related('items__product')
     
     @transaction.atomic
     def perform_create(self, serializer):

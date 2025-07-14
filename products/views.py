@@ -1,5 +1,5 @@
 from rest_framework import viewsets, permissions, filters
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
@@ -7,21 +7,20 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Value, CharField
 from django.db.models.functions import Cast
 from django.contrib.postgres.search import TrigramSimilarity
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.db import transaction
 
 from .models import Product, Category , CartItem, OrderItem, Order
 from users.models import User
 from .serializers import ProductSerializer, CategorySerializer, CartItemSerializer, OrderSerializer
 from .filters import ProductFilter
-
+from zeep import Client
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
         return request.user and request.user.is_authenticated and request.user.is_staff
-
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all().order_by('-created_at')
@@ -49,12 +48,10 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(products, many=True)
         return Response(serializer.data)
 
-
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
-
 
 class CartViewSet(viewsets.ModelViewSet):
     serializer_class = CartItemSerializer
@@ -117,4 +114,6 @@ class OrderViewSet(viewsets.ModelViewSet):
                 price=item.product.price
             )
         cart_items.delete()
-        
+
+ZARINPAL_REQUEST_URL = 'https://sandbox.zarinpal.com/pg/services/WebGate/wsdl'
+ZARINPAL_START_PAY = 'https://sandbox.zarinpal.com/pg/StartPay/'

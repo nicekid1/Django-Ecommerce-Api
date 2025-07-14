@@ -145,3 +145,31 @@ def start_payment(request, order_id):
         return redirect(ZARINPAL_START_PAY + str(result.Authority))
     else:
         return Response({"error": f"Payment error: code{result.Status}"}, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def verify_payment(request, order_id):
+    authority = request.GET.get('Authority')
+    status = request.GET.get('Status')
+
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+    except Order.DoesNotExist:
+        return Response({"error": "Order not found."}, status=404)
+
+    if status != 'OK':
+        return Response({"error": "Payment was cancelled."}, status=400)
+
+    client = Client(ZARINPAL_REQUEST_URL)
+    result = client.service.PaymentVerification(
+        MERCHANT_ID,
+        authority,
+        order.total_price
+    )
+
+    if result.Status == 100:
+        order.status = 'processing'
+        order.save()
+        return Response({"message": "Payment successful", "RefID": result.RefID})
+    else:
+        return Response({"error": f"Payment failed: Code {result.Status}"}, status=400)

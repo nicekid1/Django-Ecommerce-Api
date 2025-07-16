@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.db import transaction
 
 from .models import Product, Category , CartItem, OrderItem, Order
+from .utils import send_request, verify_payment
 from users.models import User
 from .serializers import ProductSerializer, CategorySerializer, CartItemSerializer, OrderSerializer
 from .filters import ProductFilter
@@ -118,8 +119,6 @@ class OrderViewSet(viewsets.ModelViewSet):
 ZARINPAL_REQUEST_URL = 'https://sandbox.zarinpal.com/pg/services/WebGate/wsdl'
 ZARINPAL_START_PAY = 'https://sandbox.zarinpal.com/pg/StartPay/'
 
-MERCHANT_ID = '00000000-0000-0000-0000-000000000000'
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def start_payment(request, order_id):
@@ -133,7 +132,7 @@ def start_payment(request, order_id):
     callback_url = f"http://127.0.0.1:8000/api/store/payment/verify/{order.id}/"
 
     result = client.service.PaymentRequest(
-        MERCHANT_ID,
+        sett,
         order.total_price,
         "Payment for store order",
         request.user.email,
@@ -148,28 +147,44 @@ def start_payment(request, order_id):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def verify_payment(request, order_id):
+def start_payment(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+    except Order.DoesNotExist:
+        return Response({'error': 'سفارش یافت نشد.'}, status=404)
+
+    callback_url = f"http://127.0.0.1:8000/api/store/payment/verify/{order.id}/"
+
+    result = send_request(
+        amount=int(order.total_price),  # ریال
+        description=f"پرداخت سفارش #{order.id}",
+        callback_url=callback_url,
+        phone='09120000000'  # تستی
+    )
+
+    if result['status']:
+        return redirect(result['url'])  
+    else:
+        return Response({'error': f"خطا در درخواست پرداخت: {result['code']}"}, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def verify_payment_view(request, order_id):
     authority = request.GET.get('Authority')
     status = request.GET.get('Status')
 
     try:
         order = Order.objects.get(id=order_id, user=request.user)
     except Order.DoesNotExist:
-        return Response({"error": "Order not found."}, status=404)
+        return Response({'error': 'سفارش یافت نشد.'}, status=404)
 
     if status != 'OK':
-        return Response({"error": "Payment was cancelled."}, status=400)
+        return Response({'error': 'پرداخت توسط کاربر لغو شد.'}, status=400)
 
-    client = Client(ZARINPAL_REQUEST_URL)
-    result = client.service.PaymentVerification(
-        MERCHANT_ID,
-        authority,
-        order.total_price
-    )
-
-    if result.Status == 100:
+    result = verify_payment(amount=int(order.total_price), authority=authority)
+    if result['status']:
         order.status = 'processing'
         order.save()
-        return Response({"message": "Payment successful", "RefID": result.RefID})
+        return Response({'message': 'پرداخت موفق ✅', 'ref_id': result['RefID']})
     else:
-        return Response({"error": f"Payment failed: Code {result.Status}"}, status=400)
+        return Response({'error': f"پرداخت ناموفق ❌ کد: {result['code']}"}, status=400)

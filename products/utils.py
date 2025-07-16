@@ -7,8 +7,9 @@ ZP_API_REQUEST = f"https://{'sandbox' if settings.SANDBOX else 'www'}.zarinpal.c
 ZP_API_VERIFY = f"https://{'sandbox' if settings.SANDBOX else 'www'}.zarinpal.com/pg/rest/WebGate/PaymentVerification.json"
 ZP_API_STARTPAY = f"https://{'sandbox' if settings.SANDBOX else 'www'}.zarinpal.com/pg/StartPay/"
 
-print(ZP_API_REQUEST,ZP_API_STARTPAY,ZP_API_STARTPAY)
 def send_request(amount, description, callback_url, phone=''):
+    print(ZP_API_REQUEST,ZP_API_STARTPAY,ZP_API_STARTPAY)
+
     data = {
         "MerchantID": settings.MERCHANT,
         "Amount": amount,

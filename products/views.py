@@ -162,7 +162,6 @@ def start_payment(request, order_id):
         callback_url=callback_url,
         phone='09120000000' 
     )
-    print(result)
 
     if result['status']:
         return redirect(result['url'])  

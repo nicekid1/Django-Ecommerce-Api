@@ -16,6 +16,7 @@ def send_request(amount, description, callback_url, phone=''):
         "Phone": phone,
     }
     data = json.dumps(data)
+    print(data)
     headers = {'content-type': 'application/json', 'content-length': str(len(data))}
     try:
         response = requests.post(ZP_API_REQUEST, data=data, headers=headers, timeout=10)

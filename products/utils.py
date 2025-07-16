@@ -8,8 +8,6 @@ ZP_API_VERIFY = f"https://{'sandbox' if settings.SANDBOX else 'www'}.zarinpal.co
 ZP_API_STARTPAY = f"https://{'sandbox' if settings.SANDBOX else 'www'}.zarinpal.com/pg/StartPay/"
 
 def send_request(amount, description, callback_url, phone=''):
-    print(ZP_API_REQUEST,ZP_API_STARTPAY,ZP_API_STARTPAY)
-
     data = {
         "MerchantID": settings.MERCHANT,
         "Amount": amount,
@@ -21,6 +19,7 @@ def send_request(amount, description, callback_url, phone=''):
     headers = {'content-type': 'application/json', 'content-length': str(len(data))}
     try:
         response = requests.post(ZP_API_REQUEST, data=data, headers=headers, timeout=10)
+        print(response)
         if response.status_code == 200:
             response = response.json()
             if response['Status'] == 100:

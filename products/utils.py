@@ -3,8 +3,8 @@ import requests
 import json
 
 
-ZP_API_REQUEST = f"https://{'sandbox' if settings.SANDBOX else 'www'}.zarinpal.com/pg/rest/WebGate/PaymentRequest.json"
-ZP_API_VERIFY = f"https://{'sandbox' if settings.SANDBOX else 'www'}.zarinpal.com/pg/rest/WebGate/PaymentVerification.json"
+ZP_API_REQUEST = f"https://{'sandbox' if settings.SANDBOX else 'www'}.zarinpal.com/pg/v4/payment/request.json"
+ZP_API_VERIFY = f"https://{'sandbox' if settings.SANDBOX else 'www'}.zarinpal.com/pg/v4/payment/verify.json"
 ZP_API_STARTPAY = f"https://{'sandbox' if settings.SANDBOX else 'www'}.zarinpal.com/pg/StartPay/"
 
 def send_request(amount, description, callback_url, phone=''):

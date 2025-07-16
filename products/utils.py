@@ -24,6 +24,7 @@ def send_request(amount, description, callback_url, phone=''):
         response = requests.post(ZP_API_REQUEST, data=data, headers=headers, timeout=10)
         if response.status_code == 200:
             response = response.json()
+            print(response)
             if response.get("data", {}).get("code") == 100:
                 authority = response.get(data,{}).get("authority")
                 return {
@@ -41,17 +42,27 @@ def send_request(amount, description, callback_url, phone=''):
 
 def verify_payment(amount, authority):
     data = {
-        "MerchantID": settings.MERCHANT,
-        "Amount": amount,
-        "Authority": authority,
+        "merchant_id": settings.MERCHANT,  
+        "amount": amount,
+        "authority": authority,
     }
-    data = json.dumps(data)
-    headers = {'content-type': 'application/json', 'content-length': str(len(data))}
-    response = requests.post(ZP_API_VERIFY, data=data, headers=headers)
-    if response.status_code == 200:
-        response = response.json()
-        if response['Status'] == 100:
-            return {'status': True, 'RefID': response['RefID']}
+    print(authority)
+    data_json = json.dumps(data)
+    headers = {'Content-Type': 'application/json', 'Content-Length': str(len(data_json))}
+
+    try:
+        response = requests.post(ZP_API_VERIFY, data=data_json, headers=headers)
+        response.raise_for_status()  
+        result = response.json()
+
+        status = result.get('data', {}).get('code') or result.get('Status') or result.get('status')
+        ref_id = result.get('data', {}).get('ref_id') or result.get('RefID') or result.get('refID')
+
+        if status == 100:
+            return {'status': True, 'RefID': ref_id}
         else:
-            return {'status': False, 'code': str(response['Status'])}
-    return {'status': False, 'code': 'request failed'}
+            return {'status': False, 'code': str(status)}
+    except requests.exceptions.RequestException as e:
+        return {'status': False, 'code': 'request_failed', 'error': str(e)}
+    except ValueError:
+        return {'status': False, 'code': 'invalid_response'}

@@ -172,20 +172,22 @@ def start_payment(request, order_id):
 @permission_classes([IsAuthenticated])
 def verify_payment_view(request, order_id):
     authority = request.GET.get('Authority')
+    if not authority or len(authority) != 36:
+        return Response({'error': f'Invalid authority: {authority}'}, status=400)
     status = request.GET.get('Status')
-
     try:
         order = Order.objects.get(id=order_id, user=request.user)
     except Order.DoesNotExist:
-        return Response({'error': 'سفارش یافت نشد.'}, status=404)
+        return Response({'error': 'Order not found.'}, status=404)
 
     if status != 'OK':
-        return Response({'error': 'پرداخت توسط کاربر لغو شد.'}, status=400)
+        return Response({'error': 'Payment was canceled by user.'}, status=400)
 
     result = verify_payment(amount=int(order.total_price), authority=authority)
+
     if result['status']:
         order.status = 'processing'
         order.save()
-        return Response({'message': 'پرداخت موفق ', 'ref_id': result['RefID']})
+        return Response({'message': 'Payment successful.', 'ref_id': result['RefID']})
     else:
-        return Response({'error': f"پرداخت ناموفق  کد: {result['code']}"}, status=400)
+        return Response({'error': f"Payment failed. Code: {result.get('code')} - {result.get('message')}"}, status=400)

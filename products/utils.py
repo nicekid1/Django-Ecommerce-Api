@@ -9,7 +9,7 @@ ZP_API_STARTPAY = f"https://{'sandbox' if settings.SANDBOX else 'www'}.zarinpal.
 
 def send_request(amount, description, callback_url, phone=''):
     data = {
-        "MerchantID": settings.MERCHANT,
+        "MerchantID": settings.MERCHANT_ID,
         "Amount": amount,
         "Description": description,
         "CallbackURL": callback_url,

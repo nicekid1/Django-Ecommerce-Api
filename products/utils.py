@@ -9,18 +9,21 @@ ZP_API_STARTPAY = f"https://{'sandbox' if settings.SANDBOX else 'www'}.zarinpal.
 
 def send_request(amount, description, callback_url, phone=''):
     data = {
-        "MerchantID": settings.MERCHANT_ID,
-        "Amount": amount,
-        "Description": description,
-        "CallbackURL": callback_url,
-        "Phone": phone,
+    "merchant_id": settings.MERCHANT,
+    "amount": amount,
+    "description": description,
+    "callback_url": callback_url,
+    "metadata": {
+        "mobile": "09120000000"
+      }
     }
+
     data = json.dumps(data)
     print(data)
     headers = {'content-type': 'application/json', 'content-length': str(len(data))}
     try:
         response = requests.post(ZP_API_REQUEST, data=data, headers=headers, timeout=10)
-        print(response)
+        print(response.json())
         if response.status_code == 200:
             response = response.json()
             if response['Status'] == 100:

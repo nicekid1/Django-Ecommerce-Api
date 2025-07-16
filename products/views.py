@@ -157,11 +157,12 @@ def start_payment(request, order_id):
     callback_url = f"http://127.0.0.1:8000/api/store/payment/verify/{order.id}/"
 
     result = send_request(
-        amount=int(order.total_price),  # ریال
+        amount=int(order.total_price),
         description=f"پرداخت سفارش #{order.id}",
         callback_url=callback_url,
-        phone='09120000000'  # تستی
+        phone='09120000000' 
     )
+    print(result)
 
     if result['status']:
         return redirect(result['url'])  
@@ -186,6 +187,6 @@ def verify_payment_view(request, order_id):
     if result['status']:
         order.status = 'processing'
         order.save()
-        return Response({'message': 'پرداخت موفق ✅', 'ref_id': result['RefID']})
+        return Response({'message': 'پرداخت موفق ', 'ref_id': result['RefID']})
     else:
-        return Response({'error': f"پرداخت ناموفق ❌ کد: {result['code']}"}, status=400)
+        return Response({'error': f"پرداخت ناموفق  کد: {result['code']}"}, status=400)

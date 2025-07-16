@@ -19,13 +19,12 @@ def send_request(amount, description, callback_url, phone=''):
     }
 
     data = json.dumps(data)
-    print(data)
     headers = {'content-type': 'application/json', 'content-length': str(len(data))}
     try:
         response = requests.post(ZP_API_REQUEST, data=data, headers=headers, timeout=10)
-        print(response.json())
         if response.status_code == 200:
             response = response.json()
+            print(response.data)
             if response_data.get("data", {}).get("code") == 100:
                 return {
                     'status': True,

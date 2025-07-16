@@ -25,10 +25,11 @@ def send_request(amount, description, callback_url, phone=''):
         if response.status_code == 200:
             response = response.json()
             if response.get("data", {}).get("code") == 100:
+                authority = response.get(data,{}).get("authority")
                 return {
                     'status': True,
-                    'url': ZP_API_STARTPAY + str(response['Authority']),
-                    'authority': response['Authority']
+                    'url': ZP_API_STARTPAY + str(authority),
+                    'authority': authority
                 }
             else:
                 return {'status': False, 'code': str(response['Status'])}

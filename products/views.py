@@ -105,13 +105,19 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user).prefetch_related('items__product')
-    
+
     @transaction.atomic
     def perform_create(self, serializer):
         user = self.request.user
         cart_items = CartItem.objects.filter(user=user).select_related('product')
         if not cart_items:
-            raise serializers.ValidationError("cart is empty")
+            raise serializers.ValidationError("سبد خرید خالی است.")
+
+        # بررسی موجودی
+        for item in cart_items:
+            if item.quantity > item.product.stock:
+                raise serializers.ValidationError(f"موجودی کافی برای {item.product.name} وجود ندارد.")
+
         total = sum(item.product.price * item.quantity for item in cart_items)
         order = serializer.save(user=user, total_price=total)
 
@@ -122,7 +128,11 @@ class OrderViewSet(viewsets.ModelViewSet):
                 quantity=item.quantity,
                 price=item.product.price
             )
+            item.product.stock -= item.quantity
+            item.product.save()
+
         cart_items.delete()
+
 
 ZARINPAL_REQUEST_URL = 'https://sandbox.zarinpal.com/pg/services/WebGate/wsdl'
 ZARINPAL_START_PAY = 'https://sandbox.zarinpal.com/pg/StartPay/'

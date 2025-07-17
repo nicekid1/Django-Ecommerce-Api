@@ -126,23 +126,22 @@ def start_payment(request, order_id):
     try:
         order = Order.objects.get(id=order_id, user=request.user)
     except Order.DoesNotExist:
-        return Response({'error': 'سفارش یافت نشد.'}, status=404)
+        return Response({'error': 'Order not found.'}, status=404)
 
     callback_url = f"http://127.0.0.1:8000/api/store/payment/verify/{order.id}/"
 
     result = send_request(
         amount=int(order.total_price),
-        description=f"پرداخت سفارش #{order.id}",
+        description=f"Payment for Order #{order.id}",
         callback_url=callback_url,
         phone='09120000000' 
     )
-
     if result['status']:
-        order.authority = result['authority'] 
+        order.authority = result['authority']
         order.save()
-        return redirect(result['url'])  
+        return redirect(result['url'])
     else:
-        return Response({'error': f"خطا در درخواست پرداخت: {result['code']}"}, status=400)
+        return Response({'error': f"Payment request failed: {result['code']}"}, status=400)
 
 @api_view(['GET'])
 # @permission_classes([IsAuthenticated])

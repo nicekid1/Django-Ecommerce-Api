@@ -169,7 +169,7 @@ def start_payment(request, order_id):
         return Response({'error': f"خطا در درخواست پرداخت: {result['code']}"}, status=400)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def verify_payment_view(request, order_id):
     authority = request.GET.get('Authority')
     if not authority or len(authority) != 36:

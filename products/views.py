@@ -113,7 +113,6 @@ class OrderViewSet(viewsets.ModelViewSet):
         if not cart_items:
             raise serializers.ValidationError("سبد خرید خالی است.")
 
-        # بررسی موجودی
         for item in cart_items:
             if item.quantity > item.product.stock:
                 raise serializers.ValidationError(f"موجودی کافی برای {item.product.name} وجود ندارد.")
@@ -151,7 +150,7 @@ def start_payment(request, order_id):
         amount=int(order.total_price),
         description=f"Payment for Order #{order.id}",
         callback_url=callback_url,
-        phone='09120000000' 
+        phone='09120000000'
     )
     if result['status']:
         order.authority = result['authority']
@@ -161,7 +160,6 @@ def start_payment(request, order_id):
         return Response({'error': f"Payment request failed: {result['code']}"}, status=400)
 
 @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
 def verify_payment_view(request, order_id):
     authority = request.GET.get('Authority')
     if not authority or len(authority) != 36:

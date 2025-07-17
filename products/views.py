@@ -164,7 +164,9 @@ def start_payment(request, order_id):
     )
 
     if result['status']:
-        return redirect(result['url'])  
+        order.authority = result['authority']  # ذخیره authority
+        order.save()
+        return redirect(ZP_API_STARTPAY + result['authority'])
     else:
         return Response({'error': f"خطا در درخواست پرداخت: {result['code']}"}, status=400)
 
@@ -172,11 +174,9 @@ def start_payment(request, order_id):
 # @permission_classes([IsAuthenticated])
 def verify_payment_view(request, order_id):
     authority = request.GET.get('Authority')
-    if not authority or len(authority) != 36:
-        return Response({'error': f'Invalid authority: {authority}'}, status=400)
     status = request.GET.get('Status')
     try:
-        order = Order.objects.get(id=order_id, user=request.user)
+        order = Order.objects.get(id=order_id)
     except Order.DoesNotExist:
         return Response({'error': 'Order not found.'}, status=404)
 

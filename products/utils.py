@@ -45,7 +45,6 @@ def verify_payment(amount, authority):
         "amount": amount,
         "authority": authority,
     }
-    print(authority)
     data_json = json.dumps(data)
     headers = {'Content-Type': 'application/json', 'Content-Length': str(len(data_json))}
 

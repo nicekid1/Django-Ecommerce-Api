@@ -20,3 +20,15 @@ class CartItemInline(admin.TabularInline):
 class CartAdmin(admin.ModelAdmin):
     list_display = ('user', 'created_at')
     inlines = [CartItemInline]
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 0
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('user', 'created_at', 'is_paid', 'payment_status')
+    list_filter = ('is_paid',)
+    search_fields = ('user__email',)
+    inlines = [OrderItemInline]
+    readonly_fields = ('payment_status',)

@@ -96,7 +96,7 @@ class Payment(models.Model):
     )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE,null=True)
     amount = models.PositiveIntegerField()
     authority = models.CharField(max_length=255)
     ref_id = models.CharField(max_length=255, blank=True, null=True)

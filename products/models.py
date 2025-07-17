@@ -95,12 +95,12 @@ class Payment(models.Model):
         ("failed", "Failed"),
     )
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="payments")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
     amount = models.PositiveIntegerField()
-    ref_id = models.CharField(max_length=100, blank=True, null=True)
-    status = models.CharField(max_length=20, choices=PAYMENT_STATUS, default="pending")
+    authority = models.CharField(max_length=255)
+    ref_id = models.CharField(max_length=255, blank=True, null=True)
+    status = models.CharField(max_length=20, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
-    authority = models.CharField(max_length=255, null=True, blank=True)
-
     def __str__(self):
         return f"{self.user.email} - {self.amount} - {self.status}"

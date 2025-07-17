@@ -32,3 +32,9 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ('user__email',)
     inlines = [OrderItemInline]
     readonly_fields = ('payment_status',)
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ('user', 'order', 'amount', 'authority', 'ref_id', 'status', 'created_at')
+    search_fields = ('user__email', 'order__id', 'authority', 'ref_id')
+    readonly_fields = ('user', 'order', 'amount', 'authority', 'ref_id', 'status', 'created_at')

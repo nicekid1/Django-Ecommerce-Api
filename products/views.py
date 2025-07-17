@@ -126,32 +126,6 @@ def start_payment(request, order_id):
     try:
         order = Order.objects.get(id=order_id, user=request.user)
     except Order.DoesNotExist:
-        return Response({"error": "order not found"}, status=404)
-
-    client = Client(ZARINPAL_REQUEST_URL)
-
-    callback_url = f"http://127.0.0.1:8000/api/store/payment/verify/{order.id}/"
-
-    result = client.service.PaymentRequest(
-        sett,
-        order.total_price,
-        "Payment for store order",
-        request.user.email,
-        "09123456789",
-        callback_url
-    )
-
-    if result.Status == 100:
-        return redirect(ZARINPAL_START_PAY + str(result.Authority))
-    else:
-        return Response({"error": f"Payment error: code{result.Status}"}, status=400)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def start_payment(request, order_id):
-    try:
-        order = Order.objects.get(id=order_id, user=request.user)
-    except Order.DoesNotExist:
         return Response({'error': 'سفارش یافت نشد.'}, status=404)
 
     callback_url = f"http://127.0.0.1:8000/api/store/payment/verify/{order.id}/"
@@ -164,19 +138,19 @@ def start_payment(request, order_id):
     )
 
     if result['status']:
-        order.authority = result['authority']  # ذخیره authority
-        order.save()
-        return redirect(ZP_API_STARTPAY + result['authority'])
+        return redirect(result['url'])  
     else:
         return Response({'error': f"خطا در درخواست پرداخت: {result['code']}"}, status=400)
 
 @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def verify_payment_view(request, order_id):
     authority = request.GET.get('Authority')
+    if not authority or len(authority) != 36:
+        return Response({'error': f'Invalid authority: {authority}'}, status=400)
     status = request.GET.get('Status')
     try:
-        order = Order.objects.get(id=order_id)
+        order = Order.objects.get(id=order_id, user=request.user)
     except Order.DoesNotExist:
         return Response({'error': 'Order not found.'}, status=404)
 

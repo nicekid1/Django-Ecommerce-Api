@@ -160,24 +160,43 @@ def start_payment(request, order_id):
         return Response({'error': f"Payment request failed: {result['code']}"}, status=400)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def verify_payment_view(request, order_id):
     authority = request.GET.get('Authority')
+    status_param = request.GET.get('Status')
+
     if not authority or len(authority) != 36:
         return Response({'error': f'Invalid authority: {authority}'}, status=400)
-    status = request.GET.get('Status')
+
     try:
         order = Order.objects.get(id=order_id, authority=authority)
     except Order.DoesNotExist:
         return Response({'error': 'Order not found.'}, status=404)
 
-    if status != 'OK':
+    if order.user != request.user:
+        return Response({'error': 'You are not allowed to verify this payment.'}, status=403)
+
+    if status_param != 'OK':
         return Response({'error': 'Payment was canceled by user.'}, status=400)
 
     result = verify_payment(amount=int(order.total_price), authority=authority)
 
     if result['status']:
         order.status = 'processing'
+        order.is_paid = True
+        order.payment_status = 'paid'
         order.save()
+
+        Payment.objects.create(
+            user=order.user,
+            order=order,
+            amount=int(order.total_price),
+            authority=authority,
+            ref_id=result['RefID'],
+            status='success'
+        )
+
         return Response({'message': 'Payment successful.', 'ref_id': result['RefID']})
     else:
         return Response({'error': f"Payment failed. Code: {result.get('code')} - {result.get('message')}"}, status=400)
+

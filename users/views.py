@@ -5,11 +5,16 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class UserViewSet(viewsets.ModelViewSet):
-  queryset = User.objects.all()
-  serializer_class = UserSerializer
-  permission_classes = [permissions.IsAuthenticated]
-  def get_queryset(self):
-    return User.objects.filter(id=self.request.user.id)
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return User.objects.filter(id=self.request.user.id)
+
+    def list(self, request):
+        return Response({'detail': 'Not allowed'}, status=405)
+
 
 class RegisterViewSet(viewsets.ModelViewSet):
   queryset = User.objects.none()

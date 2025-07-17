@@ -11,3 +11,12 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'price', 'category', 'stock')
     list_filter = ('category',)
     search_fields = ('title', 'description')
+
+class CartItemInline(admin.TabularInline):
+    model = CartItem
+    extra = 0
+
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ('user', 'created_at')
+    inlines = [CartItemInline]

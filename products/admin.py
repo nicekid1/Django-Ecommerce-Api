@@ -38,3 +38,7 @@ class PaymentAdmin(admin.ModelAdmin):
     list_display = ('user', 'order', 'amount', 'authority', 'ref_id', 'status', 'created_at')
     search_fields = ('user__email', 'order__id', 'authority', 'ref_id')
     readonly_fields = ('user', 'order', 'amount', 'authority', 'ref_id', 'status', 'created_at')
+    def colored_status(self, obj):
+        color = 'green' if obj.status == 'success' else 'red'
+        return format_html(f'<span style="color: {color};">{obj.status}</span>')
+    colored_status.short_description = 'Status'

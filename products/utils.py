@@ -26,7 +26,7 @@ def send_request(amount, description, callback_url, phone=''):
             response = response.json()
             print(response)
             if response.get("data", {}).get("code") == 100:
-                authority = response.get(data,{}).get("authority")
+                authority = response.get("data",{}).get("authority")
                 print(authority)
                 return {
                     'status': True,

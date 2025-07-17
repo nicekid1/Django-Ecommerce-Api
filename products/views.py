@@ -62,21 +62,27 @@ class CartViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return CartItem.objects.filter(user=self.request.user).select_related('product')
     
-    def perform_create(self, serializer):
-        user = self.request.user
-        product = serializer.validated_data['product']
-        quantity = serializer.validated_data.get('quantity', 1)
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        product = request.data.get('product')
+        quantity = int(request.data.get('quantity', 1))
+
+        try:
+            product = Product.objects.get(id=product)
+        except Product.DoesNotExist:
+            return Response({'error': 'محصول یافت نشد.'}, status=404)
 
         cart_item, created = CartItem.objects.get_or_create(
             user=user,
             product=product,
             defaults={'quantity': quantity}
         )
-
         if not created:
             cart_item.quantity += quantity
             cart_item.save()
-        return cart_item
+
+        serializer = self.get_serializer(cart_item)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=['get'])
     def total(self, request):
@@ -86,11 +92,11 @@ class CartViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'], url_path='user/(?P<user_id>[^/.]+)')
     def get_user_cart(self, request, user_id=None):
-        user = get_object_or_404(User,pk=user_id)
+        user = get_object_or_404(User, pk=user_id)
         if request.user != user and not request.user.is_staff:
             return Response({'detail': ' you have not access '}, status=status.HTTP_403_FORBIDDEN)
         cart_items = CartItem.objects.filter(user=user).select_related('product')
-        serializer = self.get_serializer(cart_items,many=True)
+        serializer = self.get_serializer(cart_items, many=True)
         return Response(serializer.data)
 
 class OrderViewSet(viewsets.ModelViewSet):

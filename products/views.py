@@ -76,6 +76,7 @@ class CartViewSet(viewsets.ModelViewSet):
         if not created:
             cart_item.quantity += quantity
             cart_item.save()
+        return cart_item
 
     @action(detail=False, methods=['get'])
     def total(self, request):

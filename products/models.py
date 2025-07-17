@@ -71,6 +71,8 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     shipping_address = models.TextField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    is_paid = models.BooleanField(default=False)
+    payment_status = models.CharField(max_length=50, default="unpaid")
 
     def __str__(self):
         return f"Order #{self.id} - {self.user.username}"

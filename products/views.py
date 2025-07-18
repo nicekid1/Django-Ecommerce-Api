@@ -132,6 +132,17 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         cart_items.delete()
 
+    @action(detail=True, methods=['patch'], permission_classes=[IsAdminUser])
+    def update_status(self, request, pk=None):
+        order = self.get_object()
+        new_status = request.data.get('status')
+        if new_status not in dict(Order.STATUS_CHOICES):
+            return Response({"error": "وضعیت نامعتبر است."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        order.status = new_status
+        order.save()
+        return Response({"status": f"وضعیت سفارش به '{order.status}' تغییر کرد."})
+
 
 ZARINPAL_REQUEST_URL = 'https://sandbox.zarinpal.com/pg/services/WebGate/wsdl'
 ZARINPAL_START_PAY = 'https://sandbox.zarinpal.com/pg/StartPay/'

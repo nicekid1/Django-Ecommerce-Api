@@ -142,6 +142,20 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.status = new_status
         order.save()
         return Response({"status": f"وضعیت سفارش به '{order.status}' تغییر کرد."})
+    
+    def perform_create(self, serializer):
+        order = serializer.save(user=self.request.user)
+        message = f"""
+        سفارش شما با شماره {order.id} با موفقیت ثبت شد.
+        مبلغ: {order.total_price} تومان
+        وضعیت: {order.status}
+        """
+        send_order_email(
+            to_email=self.request.user.email,
+            subject='تأیید سفارش',
+            message=message
+        )
+
 
 
 ZARINPAL_REQUEST_URL = 'https://sandbox.zarinpal.com/pg/services/WebGate/wsdl'

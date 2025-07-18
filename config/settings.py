@@ -160,3 +160,11 @@ SIMPLE_JWT = {
 
 MERCHANT ="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 SANDBOX = True 
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.mailtrap.io'
+EMAIL_HOST_USER = 'Your_Username'
+EMAIL_HOST_PASSWORD = 'Your_Password'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'noreply@yourstore.com'

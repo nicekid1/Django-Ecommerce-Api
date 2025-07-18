@@ -1,6 +1,8 @@
 from django.conf import settings
 import requests
 import json
+from django.core.mail import send_mail
+
 
 
 ZP_API_REQUEST = f"https://{'sandbox' if settings.SANDBOX else 'www'}.zarinpal.com/pg/v4/payment/request.json"
@@ -64,3 +66,13 @@ def verify_payment(amount, authority):
         return {'status': False, 'code': 'request_failed', 'error': str(e)}
     except ValueError:
         return {'status': False, 'code': 'invalid_response'}
+
+def send_order_email(to_email, subject, message):
+    send_mail(
+        subject,
+        message,
+        'noreply@yourstore.com',
+        [to_email],
+        fail_silently=False,
+    )
+

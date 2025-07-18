@@ -2,6 +2,8 @@ from django.db import models
 from django.conf import settings
 from uuid import uuid4
 from users.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class Category(models.Model):
   name =models.CharField(max_length=100)
@@ -106,3 +108,16 @@ class Payment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return f"{self.user.email} - {self.amount} - {self.status}"
+
+
+@receiver(post_save, sender=Order)
+def order_status_email(sender, instance, created, **kwargs):
+    if not created:
+        if instance.status == 'paid':
+            subject = 'پرداخت شما تأیید شد'
+            message = f'سفارش {instance.id} پرداخت شد.'
+            send_order_email(instance.user.email, subject, message)
+        elif instance.status == 'sent':
+            subject = 'سفارش شما ارسال شد'
+            message = f'سفارش {instance.id} در حال ارسال است.'
+            send_order_email(instance.user.email, subject, message)

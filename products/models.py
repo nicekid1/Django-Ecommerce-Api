@@ -57,12 +57,14 @@ class CartItem(models.Model):
        return self.product.price * self.quantity
 
 class Order(models.Model):
-    STATUS_CHOICES = [
-        ('pending', 'در انتظار پرداخت'),
-        ('processing', 'در حال پردازش'),
-        ('shipped', 'ارسال شده'),
-        ('delivered', 'تحویل داده شده'),
-    ]
+    STATUS_CHOICES = (
+    ('pending', 'در انتظار پرداخت'),
+    ('paid', 'پرداخت شده'),
+    ('processing', 'در حال آماده‌سازی'),
+    ('shipped', 'ارسال شده'),
+    ('delivered', 'تحویل داده شده'),
+    ('cancelled', 'لغو شده'),
+    )
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
     authority = models.CharField(max_length=50, blank=True, null=True)

@@ -71,18 +71,3 @@ A fully functional e-commerce RESTful API built with Django, Django REST Framewo
 
 ---
 
-##  Project Structure (Simplified)
-ecommerce/
-├── users/
-│ └── models.py, serializers.py, views.py
-├── products/
-│ └── models.py, serializers.py, views.py
-├── cart/
-├── orders/
-├── payments/
-├── utils/
-│ └── email.py
-├── ecommerce/
-│ └── settings.py, urls.py, asgi/wsgi.py
-└── manage.py
-
